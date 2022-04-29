@@ -53,6 +53,7 @@ const app = Vue.createApp({
         generateOne(target) {
             let candidate = this.sentenceMap.get(target)
             if (candidate && candidate.length) {
+                if (candidate.length === 1) { this.indexSet.delete(target) }
                 return candidate.shift()
             }
             let tmp = this.twoSum(this.indexArr, target)
