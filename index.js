@@ -23,15 +23,9 @@ const app = Vue.createApp({
         transformSent(arr) {
             let that = this
             arr.forEach((val) => {
-                let tmpArr = that.trimPunc(val).trim().split(" ")
+                let tmpArr = that.trimPunc(val).trim().split(" ").filter((v) => v !== "" && v !== " ")
                 tmpArr.forEach((v) => {
-                    let sentArr = that.sentenceMap.get(v.length)
-                    that.indexSet.add(v.length)
-                    if (sentArr) {
-                        sentArr.push(v)
-                    } else {
-                        that.sentenceMap.set(v.length, [v])
-                    }
+                    that.addCandidate(v)
                 })
             })
         },
@@ -53,11 +47,14 @@ const app = Vue.createApp({
         generateOne(target) {
             let candidate = this.sentenceMap.get(target)
             if (candidate && candidate.length) {
-                if (candidate.length === 1) { this.indexSet.delete(target) }
+                if (candidate.length === 1) {
+                    this.indexSet.delete(target)
+                    this.sentenceMap.delete(target)
+                }
                 return candidate.shift()
             }
             let tmp = this.twoSum(this.indexArr, target)
-            if (!tmp.length) {
+            if (tmp.length !== 2) {
                 for (let i = 0; i < this.thelast.length; i++) {
                     let v = this.thelast[i]
                     if (v.length === target) {
@@ -65,7 +62,9 @@ const app = Vue.createApp({
                     }
                 }
             }
+
             let indexNeed = [this.indexArr[tmp[0]], this.indexArr[tmp[1]]]
+            console.log(indexNeed);
             if (indexNeed.length) {
                 let pre = this.sentenceMap.get(indexNeed[0]).shift()
                 let post = this.sentenceMap.get(indexNeed[1]).shift()
@@ -86,13 +85,13 @@ const app = Vue.createApp({
             return []
         },
         addCandidate(str) {
-            let sentArr = this.sentenceMap.get(str.length)
-            this.indexSet.add(str.length)
-            if (sentArr) {
+            if (this.sentenceMap.has(str.length)) {
+                let sentArr = this.sentenceMap.get(str.length)
                 sentArr.push(str)
             } else {
                 this.sentenceMap.set(str.length, [str])
             }
+            this.indexSet.add(str.length)
         },
         generateAll() {
             this.sentences = []
