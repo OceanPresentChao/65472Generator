@@ -24,7 +24,6 @@
 </template>
 
 <script>
-import { unref } from 'vue';
 export default {
     data() {
         return {
@@ -104,8 +103,8 @@ export default {
                 }
             }
             let indexNeed = [this.indexArr[tmp[0]], this.indexArr[tmp[1]]]
-            console.log("TWOSUMMap:", unref(this.sentenceMap));
-            console.log("indexNeed:", unref(indexNeed));
+            console.log("TWOSUMMap:", this.sentenceMap);
+            console.log("indexNeed:", indexNeed);
             if (indexNeed.length) {
                 let pre = this.sentenceMap.get(indexNeed[0]).shift()
                 let post = this.sentenceMap.get(indexNeed[1]).shift()
