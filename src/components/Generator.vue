@@ -1,13 +1,18 @@
 <template>
-    <div>
+    <div style="display:flex;flex-direction: column;align-items: center;">
+        <div class="title">
+            <p>65472生成器</p>
+        </div>
         <div class="content">
-            <p v-for="(val) in sentences" class="tracking-in-contract-bck-top" :class="fontStyle">{{ val }}</p>
+            <p v-for="val in sentences" :key="val" class="tracking-in-contract-bck-top" :class="fontStyle">{{ val }}
+            </p>
             <!-- <div>indexArr:{{indexArr}}</div> -->
         </div>
-        <div>
+        <div style="display:flex;flex-wrap: wrap;">
             <button @click="generate65472" class="button-7"><span>随机生成</span></button>
+            <button @click="generateRaw" class="button-7"><span>经典原装</span></button>
         </div>
-        <div style="margin-top: 5px;">
+        <div style="margin-top: 5px;text-align: center;" class="option">
             <select name="fontStyle" id="fontStyle" v-model="fontStyle">
                 <option value="p1">马卡龙</option>
                 <option value="p2">经典原装</option>
@@ -56,6 +61,10 @@ export default {
             }
             this.generateAll()
         },
+        generateRaw() {
+            this.sentences = this.thelast
+            this.fontStyle = "p2"
+        },
         getShiCi() {
             let that = this
             return new Promise((resolve, reject) => {
@@ -95,8 +104,6 @@ export default {
             if (indexNeed.length) {
                 let pre = this.sentenceMap.get(indexNeed[0]).shift()
                 let post = this.sentenceMap.get(indexNeed[1]).shift()
-                this.sentenceMap.get(indexNeed[0]).push(pre)
-                this.sentenceMap.get(indexNeed[1]).push(post)
                 return pre + post
             }
         },
@@ -160,10 +167,7 @@ export default {
 </script>
 
 <style scoped>
-.content {
-    flex: 1;
-    margin-bottom: auto;
-}
+.content {}
 
 .content p {
     font-family: 'Times New Roman', 'sans-serif', 宋体, 楷体;
@@ -261,7 +265,7 @@ export default {
     font-size: 13px;
     font-weight: 400;
     line-height: 1.15385;
-    margin: 0;
+    margin: 1rem;
     outline: none;
     padding: 8px .8em;
     position: relative;
@@ -288,6 +292,10 @@ export default {
     box-shadow: none;
 }
 
+.option select {
+    padding: 0.5rem;
+}
+
 .banner {
     width: 100vw;
     font-size: 2rem;
@@ -298,5 +306,33 @@ export default {
     background: url('./1651241054303.jpeg');
     flex: none;
     word-wrap: break-word;
+}
+
+
+
+
+
+.title {
+    text-align: center;
+    font-size: 2rem;
+    position: relative;
+    width: 100vw;
+    background: url('../assets/1651241054303.jpeg');
+    background-size: auto;
+    /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+}
+
+.title p {
+    word-break: break-all;
+    margin-top: 1rem;
+    background: #009FFF;
+    /* fallback for old browsers */
+    background: -webkit-linear-gradient(#ec2F4B, #009FFF);
+    /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(#ec2F4B, #009FFF);
+    background-size: cover;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: rgba(0, 0, 0, .1);
 }
 </style>
