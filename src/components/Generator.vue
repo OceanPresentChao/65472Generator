@@ -8,7 +8,7 @@
             </p>
             <!-- <div>indexArr:{{indexArr}}</div> -->
         </div>
-        <div style="display:flex;flex-wrap: wrap;">
+        <div style="display:flex;flex-wrap: wrap;justify-content: center;">
             <button @click="generate65472" class="button-7"><span>随机生成</span></button>
             <button @click="generateRaw" class="button-7"><span>经典原装</span></button>
         </div>
@@ -55,11 +55,15 @@ export default {
                 })
             })
         },
-        async generate65472() {
-            while (!this.isAbleToGenerate()) {
-                await this.getShiCi()
-            }
-            this.generateAll()
+        generate65472() {
+            let that = this
+            this.want.forEach(async (v) => {
+                while (!that.isAbleToGenerate(v)) {
+                    await that.getShiCi()
+                }
+                let str = that.generateOne(v)
+                that.sentences.push(str)
+            })
         },
         generateRaw() {
             this.sentences = this.thelast
@@ -141,26 +145,13 @@ export default {
                 return ""
             }
         },
-        generateAll() {
-            this.sentences = []
-            let that = this
-            this.want.forEach((v) => {
-                let str = that.generateOne(v)
-                that.sentences.push(str)
-            })
-        },
-        isAbleToGenerate() {
-            let sum = 0;
-            let tmpset = new Set()
-            this.indexSet.forEach((v) => {
-                if ((v === 6 || v === 5 || v === 4 || v === 7 || v === 2) && !tmpset.has(v)) {
-                    sum += v
-                    tmpset.add(v)
-                } else {
-                    sum += (v * this.sentenceMap.get(v).length)
-                }
-            })
-            return sum >= 24
+        isAbleToGenerate(target) {
+            if (this.indexSet.has(target)) {
+                return true
+            } else if (this.twoSum(this.indexArr, target).length === 2) {
+                return true
+            }
+            return false
         }
     },
 }
