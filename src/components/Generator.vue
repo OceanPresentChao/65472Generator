@@ -9,7 +9,7 @@
             <!-- <div>indexArr:{{indexArr}}</div> -->
         </div>
         <div style="display:flex;flex-wrap: wrap;justify-content: center;">
-            <button @click="generate65472" class="button-7"><span>随机生成</span></button>
+            <button @click="throttle(generate65472, 500)()" class="button-7"><span>随机生成</span></button>
             <button @click="generateRaw" class="button-7"><span>经典原装</span></button>
         </div>
         <div style="margin-top: 5px;text-align: center;" class="option">
@@ -24,6 +24,8 @@
 </template>
 
 <script>
+import { Segment, useDefault } from 'segmentit';
+const segmentit = useDefault(new Segment());
 export default {
     data() {
         return {
@@ -38,7 +40,11 @@ export default {
     computed: {
         indexArr: {
             get() {
-                return Array.from(this.indexSet)
+                let result = []
+                for (const [key, value] of this.sentenceMap.entries()) {
+                    result.push(new Array(value.length).fill(key))
+                }
+                return Array.prototype.flat.call(result)
             }
         }
     },
@@ -52,15 +58,20 @@ export default {
                 let tmpArr = that.trimPunc(val).trim().split(" ").filter((v) => v !== "" && v !== " ")
                 tmpArr.forEach((v) => {
                     that.addCandidate(v)
+                    const segResult = segmentit.doSegment(v)
+                    segResult.forEach((item) => {
+                        that.addCandidate(item.w)
+                    })
                 })
             })
         },
-        generate65472() {
+        async generate65472() {
             let that = this
-            this.want.forEach(async (v) => {
-                while (!that.isAbleToGenerate(v)) {
-                    await that.getShiCi()
-                }
+            this.sentences = []
+            this.sentenceMap.clear()
+            this.indexSet.clear()
+            await this.getShiCi()
+            this.want.forEach((v) => {
                 let str = that.generateOne(v)
                 that.sentences.push(str)
             })
@@ -82,9 +93,7 @@ export default {
                     tagArr.forEach((v) => {
                         that.addCandidate(v)
                     })
-                    setTimeout(() => {
-                        resolve()
-                    }, 100);
+                    resolve()
                 });
             });
         },
@@ -93,8 +102,8 @@ export default {
             if (candidate.length) {
                 return candidate
             }
-            let tmp = this.twoSum(this.indexArr, target)
-            if (tmp.length !== 2) {
+            let indexNeed = this.combinationSum(this.indexArr, target)
+            if (!indexNeed.length) {
                 for (let i = 0; i < this.thelast.length; i++) {
                     let v = this.thelast[i]
                     if (v.length === target) {
@@ -102,27 +111,37 @@ export default {
                     }
                 }
             }
-            let indexNeed = [this.indexArr[tmp[0]], this.indexArr[tmp[1]]]
             console.log("TWOSUMMap:", this.sentenceMap);
             console.log("indexNeed:", indexNeed);
-            if (indexNeed.length) {
-                let pre = this.sentenceMap.get(indexNeed[0]).shift()
-                let post = this.sentenceMap.get(indexNeed[1]).shift()
-                return pre + post
-            }
+            let concatStr = ""
+            indexNeed.forEach((v) => {
+                concatStr += this.getCandidate(v)
+            })
+            return concatStr
         },
-        twoSum(nums, target) {
-            const numSet = new Set()
-            for (let i = 0; i < nums.length; i++) {
-                const item = nums[i]
-                if (numSet.has(target - item)) {
-                    const aindex = nums.findIndex((value) => value === target - item)
-                    return [aindex, i]
-                } else {
-                    numSet.add(item)
+        combinationSum(candidates, target) {
+            let ans = [];
+            let isfind = false
+            let find = function (now, vec, index) {
+                if (isfind) { return }
+                if (now === target) {
+                    ans = vec.concat();
+                    isfind = true
+                    return;
+                }
+                if (now > target) {
+                    return;
+                }
+                for (let i = index; i < candidates.length; i++) {
+                    now += candidates[i];
+                    vec.push(candidates[i]);
+                    find(now, vec, i);
+                    now -= candidates[i];
+                    vec.pop();
                 }
             }
-            return []
+            find(0, [], 0);
+            return ans;
         },
         addCandidate(str) {
             if (this.sentenceMap.has(str.length)) {
@@ -140,18 +159,23 @@ export default {
                     this.indexSet.delete(target)
                     this.sentenceMap.delete(target)
                 }
-                return candidate.shift()
+                const index = Math.floor(Math.random() * (candidate.length - 1))
+                return candidate.splice(index, 1)[0]
             } else {
                 return ""
             }
         },
-        isAbleToGenerate(target) {
-            if (this.indexSet.has(target)) {
-                return true
-            } else if (this.twoSum(this.indexArr, target).length === 2) {
-                return true
+        throttle(fn, delay) {
+            let that = this
+            let isTime = true
+            return function () {
+                if (!isTime) { return }
+                isTime = false
+                fn.apply(that, arguments)
+                setTimeout(() => {
+                    isTime = true
+                }, delay)
             }
-            return false
         }
     },
 }
