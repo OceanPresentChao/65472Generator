@@ -3,9 +3,10 @@
         <div class="title">
             <p>65472生成器</p>
         </div>
-        <div class="content">
+        <div class="content" v-if="sentences.length">
             <p v-for="val in sentences" :key="val" class="tracking-in-contract-bck-top" :class="fontStyle">{{ val }}
             </p>
+            <p style="color:grey;font-size: medium;">源自：《{{ origin }}》——{{ author }}</p>
             <!-- <div>indexArr:{{indexArr}}</div> -->
         </div>
         <div style="display:flex;flex-wrap: wrap;justify-content: center;">
@@ -34,7 +35,9 @@ export default {
             indexSet: new Set(),
             want: [6, 5, 4, 7, 2],
             thelast: ["别他妈了隔壁", "念你那通稿", "谁不会啊", "能不能开个麦啊", "赤佬"],
-            fontStyle: "p1"
+            fontStyle: "p1",
+            origin: "Loading...",
+            author: "",
         }
     },
     computed: {
@@ -79,6 +82,8 @@ export default {
         generateRaw() {
             this.sentences = this.thelast
             this.fontStyle = "p2"
+            this.origin = "65472"
+            this.author = "同济佚名"
         },
         getShiCi() {
             let that = this
@@ -89,7 +94,8 @@ export default {
                     let shiciArr = result.data.origin.content
                     let tagArr = result.data.matchTags
                     that.transformSent(shiciArr)
-                    that.addCandidate(result.data.origin.title)
+                    that.origin = result.data.origin.title
+                    that.author = result.data.origin.author
                     tagArr.forEach((v) => {
                         that.addCandidate(v)
                     })
