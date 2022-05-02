@@ -1,6 +1,20 @@
-# 65472 Generator
+<p align="center">
+  <a href="https://github.com/OceanPresentChao/65472Generator">
+    <img width="200" src="./static/Logo.png" alt="Logo">
+  </a>
+</p>
 
-**65472生成器，向勇者致敬，瑞思拜！！！**
+<h1 align="center">
+  <a href="https://github.com/OceanPresentChao/65472Generator" target="_blank">65472 Generator</a>
+</h1>
+
+<div align="center">
+
+<p>基于古诗词的65472生成器</p>
+
+</div>
+
+# 65472 Generator ————向勇者致敬
 
 ## v0.1.1 更新
 
